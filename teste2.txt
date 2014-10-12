@@ -1,0 +1,5 @@
+word 1teste: 2;
+bool $1pt:0;
+
+byte 1func(byte 1s)
+	return 1s;

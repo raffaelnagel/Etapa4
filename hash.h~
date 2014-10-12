@@ -1,0 +1,29 @@
+/*  Compiladores 2014/2 - Etapa 3
+    Felipe Prusokowski e Raffael Nagel
+
+*/				
+		
+#ifndef HASH_HEADER
+#define HASH_HEADER
+
+#define HASH_SIZE 997
+
+typedef struct hash_node   /* definicao da struct contendo campos para todos os itpos possiveis - LIT_STRING, TK_IDENTIFIER */
+	{				/* LIT_INTEGER, LIT_FLOATING, LIT_CHAR */
+	char *text; 			
+	int token;  
+	int intValue; 
+	double floatValue; 
+	char charValue;
+	struct hash_node *next;
+	}
+	HASH;
+	
+	int hashAddress(char *name, int token);
+	HASH* hashInsert(char *name,int token);
+	HASH* hashFind(char *name, int token);
+	void hashPrint(void);
+	void hashInit(void);
+	void setDelacarations(ast *node);
+
+#endif

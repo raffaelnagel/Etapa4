@@ -1,0 +1,25 @@
+word 1teste: 2;
+bool $1pt:0;
+
+byte 1array[2]:1 2;
+byte 2array[1];
+
+word 1incn (word 1x, word 1n)
+{
+    1var = 5;
+    &1x= (2+(2+(2+1)));
+    $1teste = 1func(2);
+    return 1x; 
+    input 1teste;
+    if ( 2+2) then return 1w[1];
+    output 2;
+};
+
+byte 1func(byte 1s)
+	return 1s;
+
+word 2teste()
+{
+	1array[1]=1func(1teste);
+};
+

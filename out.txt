@@ -1,0 +1,4 @@
+word 1teste : ;
+bool $1pt : ;
+byte 1func (byte 1s : )
+return ;

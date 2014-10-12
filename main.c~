@@ -1,0 +1,27 @@
+#include <stdio.h>
+#include <stdlib.h>
+//#include "lex.yy.h"
+
+
+extern int running;
+extern int lineNumber;
+
+int main(int argc, char *argv[])
+{
+int token;
+int i =0;
+	if (argc == 2)  
+	{
+			
+			yyin=fopen(argv[1], "r");	
+			yyparse();
+			hashPrint();
+			printf ("Finalizado com sucesso\n");
+			exit(0);
+	}
+	else
+	{
+		printf ("Erro de input!\n");
+		return 1;
+	}
+}	
