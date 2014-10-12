@@ -452,12 +452,41 @@ int astCheckNature(ast *tree){
 		switch(tree->type){
 		
 			case AST_ARRAY_DEC:  
-						return astCheckNature_ARRAY_DEC(tree);
+						astCheckNature_ARRAY_DEC(tree);
 						a[1] = 1;
 						break;
 			case AST_IN:
+						astCheckNature_IN(tree);
+						a[0] = 1;
 						break;
-			case AST_ATRIB: 
+			case AST_ATRIB:
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type){
+							case TYPE_VEC:
+									if(!tree->sons[0]){
+										fprintf(stderr,"Line %d: Vector without index\n",tree->lineNumber);
+									}
+									else{
+										if(check_variable_nature(tree->sons[0]) != TYPE_VAR){
+											fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
+											a[0] = 1;
+										}
+										if(check_variable_nature(tree->sons[1]) != TYPE_VAR){{
+											fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
+											a[1] = 1;
+										}
+									}
+									break;
+							case TYPE_POINT:
+							case TYPE_VAR:
+									if(astCheckNature(tree->sons[0]) != symbol->type){
+										fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
+										a[0] = 1;
+									} 
+									break;
+							default:fprintf(stderr,"Line %d: attribution error\n",tree->lineNumber);
+									break;
+						}
 						break;			
 			case AST_OUT:
 						break;
@@ -600,7 +629,27 @@ int astCheckNature_ARRAY_DEC(ast *tree){
 			}
 }
 
-
+int astCheckNature_IN(ast *tree){
+	symbol = (HASH*) tree->symbol;
+	switch(symbol->type)
+	{
+		case TYPE_VAR:  
+				if(tree->sons[0])
+					fprintf(stderr,"Line %d: Scalar symbol used as a vector\n",tree->lineNumber);
+				break;
+		case TYPE_VEC:  
+				if(!tree->son[0]){
+					fprintf(stderr,"Line %d: Vector without index\n",tree->lineNumber);
+				}
+				else{
+					if(astCheckNature(tree->sons[0]) != TYPE_VAR){
+						fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
+					}
+				}
+				break;
+		default: fprintf(stderr,"Line %d: Function/Pointer used in input command, only accept scalar or indexed vector\n",tree->lineNumber);
+	}
+}
 
 
 
