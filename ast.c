@@ -452,6 +452,8 @@ int astCheckNature(ast *tree){
 		switch(tree->type){
 		
 			case AST_ARRAY_DEC:  
+						return astCheckNature_ARRAY_DEC(tree);
+						a[1] = 1;
 						break;
 			case AST_IN:
 						break;
@@ -493,8 +495,11 @@ int astCheckNature(ast *tree){
 						break;
 			case AST_ADD:
 						break;
-			//case AST_SYMBOL:
-			//			break;
+			case AST_LIT_INTEGER:
+			case AST_LIT_CHAR:
+			case AST_LIT_TRUE:
+			case AST_LIT_FALSE:
+						break;
 			case AST_PAR_EXPR:
 						break;
 			case AST_PASS_PARAM:
@@ -536,13 +541,34 @@ int astGetNature(ast *tree){
 					return DATATYPE_INVALID;
 				break;
 		
-		case AST_SYMBOL: //vector
+		case AST_VETOR: 
+				if(tree->sons[0]){
+					symbol = (HASH*) tree->symbol;
+					if(astGetNature(tree->sons[0]) == DATATYPE_WORD){				
+						if(symbol)
+							return symbol->dataType;
+						else
+							return DATATYPE_INVALID;
+					}
+					else{
+						printf("Line %d: Incompatible index value for vector\n",tree->lineNumber);
+						if(symbol)
+							return symbol->dataType;
+						else
+							return DATATYPE_INVALID;
+					}
+				}
 				break;
+		case AST_LIT_INTEGER:
+		case AST_LIT_CHAR:
 		case AST_ADD:
 		case AST_SUB:
 		case AST_MUL:
 		case AST_DIV:
+				return DATATYPE_WORD;
 				break;
+		case AST_LIT_TRUE:
+		case AST_LIT_FALSE:
 		case AST_EQ:
 		case AST_LE:
 		case AST_GE:
@@ -551,15 +577,28 @@ int astGetNature(ast *tree){
 		case AST_OR:
 		case AST_GREATER:
 		case AST_LESS:
+				return DATATYPE_BOOL;
 				break;
 		case AST_PAR_EXPR:
 		case AST_NEG_EXPR:
+				if (tree->sons[0])
+					return astGetNature(tree->sons[0]); 
 				break;
 		
 	}	
 }
 
-
+int astCheckNature_ARRAY_DEC(ast *tree){
+	if(astGetNature(tree->sons[1]) == DATATYPE_BOOL)
+			{
+				fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
+			} 
+			if(astCheckNature(tree->sons[1]) != TYPE_VAR)
+			{
+				printf("%d\n", astCheckNature(tree->sons[1]));				
+				fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);				
+			}
+}
 
 
 
