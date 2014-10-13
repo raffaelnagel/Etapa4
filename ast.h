@@ -62,7 +62,6 @@
 #define AST_OUTARGS_STRING 53
 #define AST_OUTARGS_EXPR 54
 
-
 typedef struct ast_node
 {
 	HASH *symbol;

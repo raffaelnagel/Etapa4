@@ -96,7 +96,7 @@ program: program DECLARACAO	{printf("OK\n");
 				printf("testando tipos\n");
 				astCheckDeclarations($$);
 				printf("verificando natureza dos dados\n");
-				//astCheckNature($$);
+				astCheckNature($$);
 				}
 	|  			{$$=0;}
 	;
@@ -180,7 +180,7 @@ OUTARGS: LIT_STRING RESTARGSOUT       {$$=astCreate(AST_OUTARGS_STRING,$1,0,$2,0
 	|   EXPR RESTARGSOUT  	      {$$=astCreate(AST_OUTARGS_EXPR,0,$1,$2,0,0);}
 	;
 
-RESTARGSOUT: ',' OUTARGS             	{$$= 2;}
+RESTARGSOUT: ',' OUTARGS             	{$$= $2;}
 	|				{$$=0;}
 	;
 
@@ -201,7 +201,8 @@ VETOR: '['EXPR']'			{$$=astCreate(AST_INDEX,0,$2,0,0,0);}
 	|				{$$=0;}
 	;
 
-EXPR: TK_IDENTIFIER VETOR		{$$=astCreate(AST_VETOR,$1,$2,0,0,0);}
+EXPR:TK_IDENTIFIER				{$$=astCreate(AST_ID,$1,0,0,0,0);} 
+	| TK_IDENTIFIER VETOR		{$$=astCreate(AST_VETOR,$1,$2,0,0,0);}
 	| '&' TK_IDENTIFIER		{$$=astCreate(AST_REFERENCE,$2, 0,0,0,0);}
 	| '$' TK_IDENTIFIER		{$$=astCreate(AST_DE_REFERENCE,$2, 0,0,0,0);}
 	| LIT_INTEGER			{$$=astCreate(AST_LIT_INTEGER,$1, 0,0,0,0);}

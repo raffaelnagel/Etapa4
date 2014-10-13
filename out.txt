@@ -1,4 +1,22 @@
 word 1teste : ;
 bool $1pt : ;
+byte 1array[]:;
+byte 2array[];
+word 1incn (word 1x : word 1n : )
+{
+= ;
+&1x = (+ (+ (+ )));
+$1teste = 1func();
+return ;
+input 1teste;
+if (+ ) then return ;
+output ;
+}
+;
 byte 1func (byte 1s : )
 return ;
+word 2teste ()
+{
+= 1func();
+}
+;

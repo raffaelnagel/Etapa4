@@ -91,7 +91,7 @@ program: program DECLARACAO	{printf("OK\n");
 				astPrintTree($$,0);
 				printf("descompilando \n");
 				decompile($$);
-				printf("setando tipos \n");
+				printf("\nsetando tipos \n");
 				astSetDeclarations($$);
 				printf("testando tipos\n");
 				astCheckDeclarations($$);
@@ -197,11 +197,12 @@ RETURN: KW_RETURN EXPR			{$$=astCreate(AST_RETURN,0,$2,0,0,0);}
 
 
 
-VETOR: '['EXPR']'			{$$=astCreate(AST_INDEX,0,$2,0,0,0);}
+VETOR: '['EXPR']'			{$$=$2;}
 	|				{$$=0;}
 	;
 
-EXPR: TK_IDENTIFIER VETOR		{$$=astCreate(AST_VETOR,$1,$2,0,0,0);}
+EXPR:TK_IDENTIFIER				{$$=astCreate(AST_INDEX,$1,0,0,0,0);} 
+	| TK_IDENTIFIER VETOR		{$$=astCreate(AST_VETOR,$1,$2,0,0,0);}
 	| '&' TK_IDENTIFIER		{$$=astCreate(AST_REFERENCE,$2, 0,0,0,0);}
 	| '$' TK_IDENTIFIER		{$$=astCreate(AST_DE_REFERENCE,$2, 0,0,0,0);}
 	| LIT_INTEGER			{$$=astCreate(AST_LIT_INTEGER,$1, 0,0,0,0);}

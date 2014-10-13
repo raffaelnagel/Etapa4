@@ -425,7 +425,7 @@ void astCheckDeclarations(ast *tree)
 	if(tree)
 	{		
 		if(tree->type == AST_IN || tree->type == AST_INDEX || tree->type == AST_ATRIB || tree->type == AST_REFERENCE
-		|| tree->type == AST_DE_REFERENCE || tree->type == AST_FUNC_CALL || tree->type == AST_VETOR ){	
+		|| tree->type == AST_DE_REFERENCE || tree->type == AST_FUNC_CALL || tree->type == AST_VETOR || tree->type == AST_ATRIB){	
 			symbol = (HASH*) tree->symbol;
 			if(symbol)
 			{			
@@ -461,24 +461,26 @@ int astCheckNature(ast *tree){
 						break;
 			case AST_ATRIB:
 						symbol = (HASH*) tree->symbol;
+						if(!symbol)return 0;	
 						switch(symbol->type){
 							case TYPE_VEC:
 									if(!tree->sons[0]){
 										fprintf(stderr,"Line %d: Vector without index\n",tree->lineNumber);
 									}
 									else{
+										
 										if(astCheckNature(tree->sons[0]) != TYPE_VAR){
 											fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
 											a[0] = 1;
 										}
 										if(astCheckNature(tree->sons[1]) != TYPE_VAR){
-											fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
-											a[1] = 1;
+												fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
+												a[1] = 1;
 										}
 									}
 									break;
 							case TYPE_POINT:
-							case TYPE_VAR:
+							case TYPE_VAR:						
 									if(astCheckNature(tree->sons[0]) != symbol->type){
 										fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
 										a[0] = 1;
