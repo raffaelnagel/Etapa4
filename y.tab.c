@@ -671,7 +671,7 @@ case 1:
 				printf("testando tipos\n");
 				astCheckDeclarations(yyval.ast);
 				printf("verificando natureza dos dados\n");
-				/*astCheckNature($$);*/
+				astCheckNature(yyval.ast);
 				}
 break;
 case 2:
@@ -816,15 +816,15 @@ case 36:
 break;
 case 37:
 #line 179 "parser.y"
-	{yyval.ast=astCreate(AST_OUTARGS,yystack.l_mark[-1].symbol,0,yystack.l_mark[0].ast,0,0);}
+	{yyval.ast=astCreate(AST_OUTARGS_STRING,yystack.l_mark[-1].symbol,0,yystack.l_mark[0].ast,0,0);}
 break;
 case 38:
 #line 180 "parser.y"
-	{yyval.ast=astCreate(AST_OUTARGS,0,yystack.l_mark[-1].ast,yystack.l_mark[0].ast,0,0);}
+	{yyval.ast=astCreate(AST_OUTARGS_EXPR,0,yystack.l_mark[-1].ast,yystack.l_mark[0].ast,0,0);}
 break;
 case 39:
 #line 183 "parser.y"
-	{yyval.ast= astCreate(AST_OUTARGS,0,yystack.l_mark[0].ast,0,0,0);}
+	{yyval.ast= yystack.l_mark[0].ast;}
 break;
 case 40:
 #line 184 "parser.y"

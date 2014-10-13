@@ -467,11 +467,11 @@ int astCheckNature(ast *tree){
 										fprintf(stderr,"Line %d: Vector without index\n",tree->lineNumber);
 									}
 									else{
-										if(check_variable_nature(tree->sons[0]) != TYPE_VAR){
+										if(astCheckNature(tree->sons[0]) != TYPE_VAR){
 											fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
 											a[0] = 1;
 										}
-										if(check_variable_nature(tree->sons[1]) != TYPE_VAR){{
+										if(astCheckNature(tree->sons[1]) != TYPE_VAR){
 											fprintf(stderr,"Line %d: nature of left side and right side doesn't match\n",tree->lineNumber);
 											a[1] = 1;
 										}
@@ -489,26 +489,159 @@ int astCheckNature(ast *tree){
 						}
 						break;			
 			case AST_OUT:
+						astCheckNature(tree->sons[0]);
+						a[0] = 1;
 						break;
-			case AST_OUTARGS:
+			case AST_OUTARGS_STRING:
+						if(tree->symbol){
+							if(tree->sons[0]){
+								return astCheckNature(tree->sons[0]);
+							}
+							else{
+								return TYPE_VAR;
+							}
+						}
+						break;
+			case AST_OUTARGS_EXPR:
+						if(tree->sons[0]){			
+							astCheckNature(tree->sons[0]);
+							if(tree->sons[1]){
+								if(astCheckNature(tree->sons[1]) == TYPE_VAR){
+									a[1] = 1;
+									return TYPE_VAR;
+								}								
+							}
+						}
 						break;
 			case AST_RETURN:
+						if(astCheckNature(tree->sons[0]) != TYPE_VAR){
+							fprintf(stderr,"Line %d: nature of return invalid, expected scalar value\n",tree->lineNumber);
+							a[0] = 1;
+						}
 						break;
 			case AST_IF:
+						if(astCheckNature(tree->sons[0]) != TYPE_VAR){
+							fprintf(stderr,"Line %d: nature of if expression invalid, expected scalar value\n",tree->lineNumber);
+							a[0] = 1;
+						}
 						break;
 			case AST_INDEX:
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type)
+						{
+							case TYPE_VEC:   fprintf(stderr,"Line %d: Vector used as scalar\n",tree->lineNumber); 
+									 break;
+							case TYPE_FUN:   fprintf(stderr,"Line %d: Function used as a scalar\n",tree->lineNumber);
+									 break;
+							case TYPE_VAR:
+							case TYPE_POINT: return symbol->type;
+									 break;
+							default: break;
+						}
 						break;
-			case AST_VETOR: //id + vetor
+			case AST_VETOR: 
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type)
+						{
+							case TYPE_VAR:   fprintf(stderr,"Line %d: scalar used as vector\n",tree->lineNumber); 
+									 break;
+							case TYPE_FUN:   fprintf(stderr,"Line %d: Function used as vector\n",tree->lineNumber);
+									 break;
+							case TYPE_POINT: fprintf(stderr,"Line %d: Pointer used as vector\n",tree->lineNumber);
+									 break;
+							case TYPE_VEC:   
+									if(astCheckNature(tree->sons[0]) != TYPE_VAR){
+										fprintf(stderr,"Line %d: index of vector is not scalar\n",tree->lineNumber);
+										a[0] = 1;
+									 }
+									 return TYPE_VAR;
+									 break;
+							default: break;
+						}
 						break;
-			case AST_REFERENCE: //& id
+			case AST_REFERENCE: 
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type)
+						{
+							case TYPE_VEC: fprintf(stderr,"Line %d: Vector used as scalar\n",tree->lineNumber);
+									   break;
+							case TYPE_FUN: fprintf(stderr,"Line %d: Function used as scalar\n",tree->lineNumber);
+									   break;
+							case TYPE_POINT: fprintf(stderr,"Line %d: Pointer used as scalar\n",tree->lineNumber);
+									   break;
+							case TYPE_VAR:   return TYPE_POINT;
+									   break;
+							default:   break; 
+						}
 						break;
-			case AST_DE_REFERENCE: // $ + id
+			case AST_DE_REFERENCE: 
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type){
+							case TYPE_VEC: fprintf(stderr,"Line %d: Vector used as pointer\n",tree->lineNumber);
+									   break;
+							case TYPE_FUN: fprintf(stderr,"Line %d: Function used as pointer\n",tree->lineNumber);
+									   break;
+							case TYPE_VAR: fprintf(stderr,"Line %d: Scalar used as pointer\n",tree->lineNumber);
+									   break;
+							case TYPE_POINT: return TYPE_VAR;
+									   break;
+							default:   break; 
+						}
 						break;
 			case AST_FUNC_CALL:
+						symbol = (HASH*) tree->symbol;
+						switch(symbol->type)
+						{
+							case TYPE_VEC: fprintf(stderr,"Line %d: Vector used as function\n",tree->lineNumber);
+									   break;
+							case TYPE_FUN: 
+									   //if(astree_naturecheck_args(tree)){
+									  //	return TYPE_VAR;
+									  // }
+									   return TYPE_FUN;
+									   break;
+							case TYPE_VAR: fprintf(stderr,"Line %d: Scalar used as function\n",tree->lineNumber);
+									   break;
+							case TYPE_POINT: fprintf(stderr,"Line %d: Pointer used as function\n",tree->lineNumber);
+									   break;
+							default:   break; 
+						}
 						break;
 			case AST_NEG_EXPR:
+						if(tree->sons[0]){
+							nature1 = astCheckNature(tree->sons[0]);
+							a[0] = 1;
+							if(nature1 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								fprintf(stderr,"Line %d: Expected a scalar\n",tree->lineNumber);
+							}
+						}
 						break;
 			case AST_SUB:
+						if(tree->sons[1]){
+							nature1 = astCheckNature(tree->sons[0]);
+							nature2 = astCheckNature(tree->sons[1]);
+							a[0] = 1;
+							a[1] = 1;
+							if(nature1 == TYPE_VAR && nature2 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								fprintf(stderr,"Line %d: Invalid subtraction/multiply/division, just allowed those operations of aritmetics\n",tree->lineNumber);
+							}
+						}
+						else{
+							nature1 = astCheckNature(tree->sons[0]);
+							a[0] = 1;
+							if(nature1 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								fprintf(stderr,"Line %d: Invalid subtraction/multiply/division, just allowed those operations of aritmetics\n",tree->lineNumber);
+							}
+						}
 						break;
 			case AST_LE:
 			case AST_GE:
@@ -518,20 +651,72 @@ int astCheckNature(ast *tree){
 			case AST_OR:
 			case AST_GREATER:
 			case AST_LESS:
+						if(tree->sons[1] && tree->sons[0]){
+							nature1 = astCheckNature(tree->sons[0]);
+							nature2 = astCheckNature(tree->sons[1]);
+							a[0] = 1;
+							a[1] = 1;
+							if(nature1 == TYPE_VAR && nature2 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								fprintf(stderr,"Line %d: Invalid logic expression, just allowed binary logic expressions of 2 aritmetics or booleans\n",tree->lineNumber);
+							}
+						}
 						break;
 			case AST_MUL:
 			case AST_DIV:
+						if(tree->sons[1] && tree->sons[0]){
+							nature1 = astCheckNature(tree->sons[0]);
+							nature2 = astCheckNature(tree->sons[1]);
+							a[0] = 1;
+							a[1] = 1;
+							if(nature1 == TYPE_VAR && nature2 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								fprintf(stderr,"Line %d: Invalid subtraction/multiply/division, just allowed those operations of aritmetics\n",tree->lineNumber);
+							}
+						}
 						break;
 			case AST_ADD:
+						if(tree->sons[1] && tree->sons[0]){
+							nature1 = astCheckNature(tree->sons[0]);
+							nature2 = astCheckNature(tree->sons[1]);
+							a[0] = 1;
+							a[1] = 1;
+							if(nature1 == TYPE_VAR && nature2 == TYPE_VAR){
+								return TYPE_VAR;
+							}
+							else{
+								if(nature1 == TYPE_VAR && nature2 == TYPE_POINT){
+									return TYPE_POINT;
+								}
+								else{
+									if(nature1 == TYPE_POINT && nature2 == TYPE_VAR){
+										return TYPE_POINT;
+									}
+									else{
+										fprintf(stderr,"Line %d: Invalid sum, just allowed sum of 2 aritmetics or 1 aritmetic and 1 pointer \n",tree->lineNumber);
+									}
+								}
+							}
+						}
 						break;
 			case AST_LIT_INTEGER:
 			case AST_LIT_CHAR:
 			case AST_LIT_TRUE:
 			case AST_LIT_FALSE:
+						return TYPE_VAR;
 						break;
 			case AST_PAR_EXPR:
+						a[0] = 1;			
+						return astCheckNature(tree->sons[0]);
 						break;
 			case AST_PASS_PARAM:
+						astCheckNature(tree->sons[1]);
+						a[1] = 1;
+						return astCheckNature(tree->sons[0]);
 						break;
 			
 		}	
@@ -630,7 +815,7 @@ int astCheckNature_ARRAY_DEC(ast *tree){
 }
 
 int astCheckNature_IN(ast *tree){
-	symbol = (HASH*) tree->symbol;
+	HASH* symbol = (HASH*) tree->symbol;
 	switch(symbol->type)
 	{
 		case TYPE_VAR:  
@@ -638,7 +823,7 @@ int astCheckNature_IN(ast *tree){
 					fprintf(stderr,"Line %d: Scalar symbol used as a vector\n",tree->lineNumber);
 				break;
 		case TYPE_VEC:  
-				if(!tree->son[0]){
+				if(!tree->sons[0]){
 					fprintf(stderr,"Line %d: Vector without index\n",tree->lineNumber);
 				}
 				else{

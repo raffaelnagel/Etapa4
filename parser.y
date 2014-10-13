@@ -96,7 +96,7 @@ program: program DECLARACAO	{printf("OK\n");
 				printf("testando tipos\n");
 				astCheckDeclarations($$);
 				printf("verificando natureza dos dados\n");
-				//astCheckNature($$);
+				astCheckNature($$);
 				}
 	|  			{$$=0;}
 	;
@@ -176,11 +176,11 @@ ATRIB: EXPR  '=' EXPR              {$$=astCreate(AST_ATRIB,0,$1,$3,0,0);}
 OUT: KW_OUTPUT OUTARGS                 {$$= astCreate(AST_OUT,0,$2,0,0,0);}
 	;
 
-OUTARGS: LIT_STRING RESTARGSOUT       {$$=astCreate(AST_OUTARGS,$1,0,$2,0,0);}
-	|   EXPR RESTARGSOUT  	      {$$=astCreate(AST_OUTARGS,0,$1,$2,0,0);}
+OUTARGS: LIT_STRING RESTARGSOUT       {$$=astCreate(AST_OUTARGS_STRING,$1,0,$2,0,0);}
+	|   EXPR RESTARGSOUT  	      {$$=astCreate(AST_OUTARGS_EXPR,0,$1,$2,0,0);}
 	;
 
-RESTARGSOUT: ',' OUTARGS             	{$$= astCreate(AST_OUTARGS,0,$2,0,0,0);}
+RESTARGSOUT: ',' OUTARGS             	{$$= $2;}
 	|				{$$=0;}
 	;
 

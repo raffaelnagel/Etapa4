@@ -59,6 +59,8 @@
 #define AST_LIT_TRUE    50
 #define AST_LIT_FALSE	    51
 #define AST_VETOR 52
+#define AST_OUTARGS_STRING 53
+#define AST_OUTARGS_EXPR 54
 
 
 typedef struct ast_node

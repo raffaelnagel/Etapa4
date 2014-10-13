@@ -137,8 +137,8 @@ DECLARACAOPARAMFUNC: LISTPARAM                     {$$=$1;}
 	|				           {$$=0;}
 	;
 
-LISTPARAM: TIPO '$' TK_IDENTIFIER RESTLISTPARAM	   {$$=astCreate(AST_PARAM_REF,$3,$1,$4,0,0);}
-	|  TIPO TK_IDENTIFIER RESTLISTPARAM	   {$$=astCreate(AST_PARAM,$2,$1,$3,0,0);}
+LISTPARAM: TIPO '$' TK_IDENTIFIER RESTLISTPARAM	   {$$=astCreate(AST_POINTER_DEC,$3,$1,$4,0,0);}
+	|  TIPO TK_IDENTIFIER RESTLISTPARAM	   {$$=astCreate(AST_NDEC,$2,$1,$3,0,0);}
 	;
 
 
@@ -176,11 +176,11 @@ ATRIB: EXPR  '=' EXPR              {$$=astCreate(AST_ATRIB,0,$1,$3,0,0);}
 OUT: KW_OUTPUT OUTARGS                 {$$= astCreate(AST_OUT,0,$2,0,0,0);}
 	;
 
-OUTARGS: LIT_STRING RESTARGSOUT       {$$=astCreate(AST_OUTARGS,$1,0,$2,0,0);}
-	|   EXPR RESTARGSOUT  	      {$$=astCreate(AST_OUTARGS,0,$1,$2,0,0);}
+OUTARGS: LIT_STRING RESTARGSOUT       {$$=astCreate(AST_OUTARGS_STRING,$1,0,$2,0,0);}
+	|   EXPR RESTARGSOUT  	      {$$=astCreate(AST_OUTARGS_EXPR,0,$1,$2,0,0);}
 	;
 
-RESTARGSOUT: ',' OUTARGS             	{$$= astCreate(AST_OUTARGS,0,$2,0,0,0);}
+RESTARGSOUT: ',' OUTARGS             	{$$= 2;}
 	|				{$$=0;}
 	;
 
